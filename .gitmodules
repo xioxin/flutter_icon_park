@@ -1,0 +1,3 @@
+[submodule "IconPark"]
+	path = IconPark
+	url = git@github.com:bytedance/IconPark.git
