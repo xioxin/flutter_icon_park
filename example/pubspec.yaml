@@ -1,4 +1,4 @@
-name: icon_park_example
+name: flutter_icon_park_example
 description: "Demonstrates how to use the vg_icon_park plugin."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -17,7 +17,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  icon_park:
+  flutter_icon_park:
     path: ../
 
   # The following adds the Cupertino Icons font to your application.

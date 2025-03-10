@@ -128,38 +128,42 @@ class IconParkProps {
     double? strokeWidth,
     StrokeJoin? strokeLineJoin,
     StrokeCap? strokeLineCap,
+    Color? outStrokeColor,
+    Color? outFillColor,
+    Color? innerStrokeColor,
+    Color? innerFillColor,
   }) {
     switch (type) {
       case IconParkThemeType.outline:
         return IconParkProps.outline(
-          colorScheme.onSurface,
-          background: Colors.transparent,
+          outStrokeColor ?? colorScheme.onSurface,
+          background: outFillColor ?? Colors.transparent,
           strokeWidth: strokeWidth,
           strokeLineJoin: strokeLineJoin,
           strokeLineCap: strokeLineCap,
         );
       case IconParkThemeType.filled:
         return IconParkProps.filled(
-          colorScheme.onSurface,
-          colorScheme.onPrimary,
+          outStrokeColor ?? colorScheme.onSurface,
+          innerStrokeColor ?? colorScheme.onPrimary,
           strokeWidth: strokeWidth,
           strokeLineJoin: strokeLineJoin,
           strokeLineCap: strokeLineCap,
         );
       case IconParkThemeType.twoTone:
         return IconParkProps.twoTone(
-          colorScheme.onSurface,
-          colorScheme.primaryFixedDim,
+          outStrokeColor ?? colorScheme.onSurface,
+          outFillColor ?? colorScheme.primaryFixedDim,
           strokeWidth: strokeWidth,
           strokeLineJoin: strokeLineJoin,
           strokeLineCap: strokeLineCap,
         );
       case IconParkThemeType.multiColor:
         return IconParkProps.multiColor(
-          colorScheme.onSurface,
-          colorScheme.primary,
-          colorScheme.onPrimary,
-          colorScheme.primaryFixedDim,
+          outStrokeColor ?? colorScheme.onSurface,
+          outFillColor ?? colorScheme.primary,
+          innerStrokeColor ?? colorScheme.onPrimary,
+          innerFillColor ?? colorScheme.primaryFixedDim,
           strokeWidth: strokeWidth,
           strokeLineJoin: strokeLineJoin,
           strokeLineCap: strokeLineCap,
@@ -189,12 +193,53 @@ class IconParkProps {
     );
   }
 
-  IconParkProps withCurrentColor(Color color) {
+  IconParkProps copyWithColor({
+    Color? outStrokeColor,
+    Color? outFillColor,
+    Color? innerStrokeColor,
+    Color? innerFillColor,
+    double? strokeWidth,
+    StrokeJoin? strokeLineJoin,
+    StrokeCap? strokeLineCap,
+    bool? useCurrentColor,
+  }) {
     return switch (theme) {
-      IconParkThemeType.outline => copyWith(color1: color, color3: color),
-      IconParkThemeType.filled => copyWith(color1: color, color2: color),
-      IconParkThemeType.twoTone => copyWith(color1: color, color3: color),
-      IconParkThemeType.multiColor => copyWith(color1: color),
+      IconParkThemeType.outline => copyWith(
+        color1: outStrokeColor,
+        color2: outFillColor,
+        color3: outStrokeColor,
+        color4: outFillColor,
+        strokeWidth: strokeWidth,
+        strokeLineJoin: strokeLineJoin,
+        strokeLineCap: strokeLineCap,
+      ),
+      IconParkThemeType.filled => copyWith(
+        color1: outStrokeColor,
+        color2: outStrokeColor,
+        color3: innerStrokeColor,
+        color4: innerStrokeColor,
+        strokeWidth: strokeWidth,
+        strokeLineJoin: strokeLineJoin,
+        strokeLineCap: strokeLineCap,
+      ),
+      IconParkThemeType.twoTone => copyWith(
+        color1: outStrokeColor,
+        color2: outFillColor,
+        color3: outStrokeColor,
+        color4: outFillColor,
+        strokeWidth: strokeWidth,
+        strokeLineJoin: strokeLineJoin,
+        strokeLineCap: strokeLineCap,
+      ),
+      IconParkThemeType.multiColor => copyWith(
+        color1: outStrokeColor,
+        color2: outFillColor,
+        color3: innerStrokeColor,
+        color4: innerFillColor,
+        strokeWidth: strokeWidth,
+        strokeLineJoin: strokeLineJoin,
+        strokeLineCap: strokeLineCap,
+      ),
     };
   }
 
@@ -252,6 +297,10 @@ class IconParkProps {
 class IconParkTheme extends ThemeExtension<IconParkTheme> {
   late final IconParkThemeTypeMap paletteMap;
   final IconParkThemeType defaultTheme;
+
+  IconParkProps? get(IconParkThemeType type) {
+    return paletteMap[type];
+  }
 
   IconParkTheme.fromColorScheme(
     ColorScheme colorScheme, {
@@ -324,7 +373,7 @@ class DefaultIconParkProps extends InheritedWidget {
 class IconParkData {
   final String name;
   final IconParkSvgBuilder builder;
-  final bool rtl;
+  final bool matchTextDirection;
 
   static IconParkSvgBuilder replace(String svg) {
     final rawSvg = svg;
@@ -366,58 +415,75 @@ class IconParkData {
     };
   }
 
-  const IconParkData(this.name, this.rtl, this.builder);
+  const IconParkData(this.name, this.matchTextDirection, this.builder);
 
-  Widget icon(
-    BuildContext context, {
+  Widget icon({
     IconParkProps? props,
     IconParkThemeType? theme,
     double? strokeWidth,
     StrokeJoin? strokeLineJoin,
     StrokeCap? strokeLineCap,
     double? size,
-    bool? useIconThemeColor,
+    Color? outStrokeColor,
+    Color? outFillColor,
+    Color? innerStrokeColor,
+    Color? innerFillColor,
+    bool? applyTextScaling,
+    String? semanticLabel,
   }) {
-    useIconThemeColor ??= true;
-    assert(
-      !(props != null && theme != null && props.theme != theme),
-      'IconParkData: props.theme and theme must be the same',
+    return Builder(
+      builder: (context) {
+        props ??= IconParkProps.maybeOf(context);
+        if (props == null) {
+          final parkTheme = Theme.of(context).extension<IconParkTheme>();
+          theme ??= parkTheme?.defaultTheme ?? IconParkThemeType.outline;
+          props = parkTheme?.paletteMap[theme];
+          props ??= IconParkProps.fromColorScheme(
+            Theme.of(context).colorScheme,
+            theme!,
+          );
+        }
+        final iconTheme = IconTheme.of(context);
+        if (iconTheme.color != null) {
+          props = props!.copyWithColor(outStrokeColor: iconTheme.color!);
+        }
+        size ??= iconTheme.size ?? kDefaultFontSize;
+
+        applyTextScaling ??= iconTheme.applyTextScaling ?? false;
+
+        final double? iconSize =
+            applyTextScaling!
+                ? MediaQuery.textScalerOf(context).scale(size!)
+                : size;
+
+        props = props!.copyWithColor(
+          outStrokeColor: outStrokeColor,
+          outFillColor: outFillColor,
+          innerStrokeColor: innerStrokeColor,
+          innerFillColor: innerFillColor,
+          strokeWidth: strokeWidth,
+          strokeLineJoin: strokeLineJoin,
+          strokeLineCap: strokeLineCap,
+        );
+
+        Widget icon = SvgPicture.string(
+          builder(props!),
+          width: iconSize,
+          height: iconSize,
+          matchTextDirection: matchTextDirection,
+        );
+        if (iconTheme.opacity != null) {
+          icon = Opacity(opacity: iconTheme.opacity!, child: icon);
+        }
+        if (semanticLabel != null) {
+          icon = Semantics(
+            label: semanticLabel,
+            child: ExcludeSemantics(child: icon),
+          );
+        }
+        return icon;
+      },
     );
-    props ??= IconParkProps.maybeOf(context);
-    if (props == null) {
-      var parkTheme = Theme.of(context).extension<IconParkTheme>();
-      theme ??= parkTheme?.defaultTheme ?? IconParkThemeType.outline;
-      parkTheme ??= IconParkTheme.fromColorScheme(
-        Theme.of(context).colorScheme,
-      );
-      props = parkTheme.paletteMap[theme];
-    }
-    if (props == null) {
-      throw Exception(
-        'IconParkData: props is null, please provide a IconParkProps or IconParkTheme',
-      );
-    }
-    final isRtl = rtl && Directionality.of(context) == TextDirection.rtl;
-    if (isRtl) {
-      return Transform.scale(
-        scaleX: -1,
-        child: SvgPicture.string(builder(props)),
-      );
-    }
-
-    final iconTheme = IconTheme.of(context);
-    if (iconTheme.color != null) {
-      props = props.withCurrentColor(iconTheme.color!);
-    }
-    size ??= iconTheme.size;
-
-    props = props.copyWith(
-      strokeWidth: strokeWidth ?? props.strokeWidth,
-      strokeLineJoin: strokeLineJoin ?? props.strokeLineJoin,
-      strokeLineCap: strokeLineCap ?? props.strokeLineCap,
-    );
-
-    return SvgPicture.string(builder(props));
   }
 
   Widget outline(
@@ -427,24 +493,17 @@ class IconParkData {
     double? strokeWidth,
     StrokeJoin? strokeLineJoin,
     StrokeCap? strokeLineCap,
+    double? size,
   }) {
-    if (fill == null) {
-      return icon(
-        context,
-        theme: IconParkThemeType.outline,
-        strokeWidth: strokeWidth,
-        strokeLineJoin: strokeLineJoin,
-        strokeLineCap: strokeLineCap,
-      );
-    }
-    final props = IconParkProps.outline(
-      fill,
-      background: background ?? Colors.transparent,
+    return icon(
       strokeWidth: strokeWidth,
       strokeLineJoin: strokeLineJoin,
       strokeLineCap: strokeLineCap,
+      size: size,
+      theme: IconParkThemeType.outline,
+      outFillColor: fill,
+      outStrokeColor: background,
     );
-    return icon(context, props: props);
   }
 
   Widget filled(
@@ -454,29 +513,17 @@ class IconParkData {
     double? strokeWidth,
     StrokeJoin? strokeLineJoin,
     StrokeCap? strokeLineCap,
+    double? size,
   }) {
-    assert(
-      (fill == null && innerStroke == null) ||
-          (fill != null && innerStroke != null),
-      'IconParkData: fill and innerStroke must be both null or both not null',
-    );
-    if (fill == null) {
-      return icon(
-        context,
-        theme: IconParkThemeType.filled,
-        strokeWidth: strokeWidth,
-        strokeLineJoin: strokeLineJoin,
-        strokeLineCap: strokeLineCap,
-      );
-    }
-    final props = IconParkProps.filled(
-      fill,
-      innerStroke!,
+    return icon(
       strokeWidth: strokeWidth,
       strokeLineJoin: strokeLineJoin,
       strokeLineCap: strokeLineCap,
+      size: size,
+      theme: IconParkThemeType.filled,
+      outFillColor: fill,
+      innerStrokeColor: innerStroke,
     );
-    return icon(context, props: props);
   }
 
   Widget twoTone(
@@ -486,28 +533,17 @@ class IconParkData {
     double? strokeWidth,
     StrokeJoin? strokeLineJoin,
     StrokeCap? strokeLineCap,
+    double? size,
   }) {
-    assert(
-      (fill == null && twoTone == null) || (fill != null && twoTone != null),
-      'IconParkData: fill and twoTone must be both null or both not null',
-    );
-    if (fill == null) {
-      return icon(
-        context,
-        theme: IconParkThemeType.twoTone,
-        strokeWidth: strokeWidth,
-        strokeLineJoin: strokeLineJoin,
-        strokeLineCap: strokeLineCap,
-      );
-    }
-    final props = IconParkProps.twoTone(
-      fill,
-      twoTone!,
+    return icon(
       strokeWidth: strokeWidth,
       strokeLineJoin: strokeLineJoin,
       strokeLineCap: strokeLineCap,
+      size: size,
+      theme: IconParkThemeType.twoTone,
+      outStrokeColor: fill,
+      outFillColor: twoTone,
     );
-    return icon(context, props: props);
   }
 
   Widget multiColor(
@@ -519,36 +555,18 @@ class IconParkData {
     double? strokeWidth,
     StrokeJoin? strokeLineJoin,
     StrokeCap? strokeLineCap,
+    double? size,
   }) {
-    assert(
-      (outStrokeColor == null &&
-              outFillColor == null &&
-              innerStrokeColor == null &&
-              innerFillColor == null) ||
-          (outStrokeColor != null &&
-              outFillColor != null &&
-              innerStrokeColor != null &&
-              innerFillColor != null),
-      'IconParkData: outStrokeColor, outFillColor, innerStrokeColor and innerFillColor must be all null or all not null',
-    );
-    if (outStrokeColor == null) {
-      return icon(
-        context,
-        theme: IconParkThemeType.multiColor,
-        strokeWidth: strokeWidth,
-        strokeLineJoin: strokeLineJoin,
-        strokeLineCap: strokeLineCap,
-      );
-    }
-    final props = IconParkProps.multiColor(
-      outStrokeColor,
-      outFillColor!,
-      innerStrokeColor!,
-      innerFillColor!,
+    return icon(
       strokeWidth: strokeWidth,
       strokeLineJoin: strokeLineJoin,
       strokeLineCap: strokeLineCap,
+      size: size,
+      theme: IconParkThemeType.multiColor,
+      outStrokeColor: outStrokeColor,
+      outFillColor: outFillColor,
+      innerStrokeColor: innerStrokeColor,
+      innerFillColor: innerFillColor,
     );
-    return icon(context, props: props);
   }
 }

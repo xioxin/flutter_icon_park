@@ -1,15 +1,12 @@
-# vg_icon_park
+# flutter_icon_park
 
-A new Flutter plugin project.
+这是 ByteDance IconPark图标库的 Flutter 实现，这是一套基于SVG的图标。支持多种色彩模式。
 
-## Getting Started
+## 安装
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/to/develop-plugins),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+```yaml
+dependencies:
+  flutter_icon_park: ^0.0.1
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
+## 使用

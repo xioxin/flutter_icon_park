@@ -1,7 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:icon_park/icon_park.dart';
-import 'package:icon_park/all_icons.dart';
+import 'package:flutter_icon_park/flutter_icon_park.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,40 +32,62 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('example app'),
           actions: [
-            IconButton(
-              onPressed: () {
-                scaffoldKey.currentState?.openEndDrawer();
-              },
-              icon: IconPark.setting.icon(context),
-            ),
+            // IconButton(
+            //   onPressed: () {
+            //     scaffoldKey.currentState?.openEndDrawer();
+            //   },
+            //   icon: IconPark.setting.icon(),
+            // ),
           ],
         ),
         endDrawer: Drawer(child: Text("test")),
         body: Row(
           children: [
             Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 100,
-                  childAspectRatio: 1,
-                ),
-                itemCount: allIcons.length,
-                itemBuilder: (context, index) {
-                  final icon = allIcons[index];
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      icon.icon(
-                        context,
-                        theme: IconParkThemeType.twoTone,
-                        useIconThemeColor: false,
-                      ),
-                      Text(icon.name),
-                    ],
-                  );
-                },
+              child: Column(
+                children: [
+                  Text("Test"),
+                  FilledButton.icon(
+                    onPressed: null,
+                    icon: IconPark.bookmark.icon(),
+                    label: Text("test"),
+                  ),
+                  FilledButton.icon(
+                    onPressed: () {},
+                    icon: IconPark.bookmark.icon(),
+                    label: Text("test"),
+                  ),
+                  FilledButton.icon(
+                    onPressed: null,
+                    icon: Icon(Icons.bookmark),
+                    label: Text("test"),
+                  ),
+                ],
               ),
             ),
+
+            // Expanded(
+            //   child: GridView.builder(
+            //     gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            //       maxCrossAxisExtent: 100,
+            //       childAspectRatio: 1,
+            //     ),
+            //     itemCount: allIcons.length,
+            //     itemBuilder: (context, index) {
+            //       final icon = allIcons[index];
+            //       return Column(
+            //         mainAxisSize: MainAxisSize.min,
+            //         children: [
+            //           icon.icon(
+            //             context,
+            //             theme: IconParkThemeType.twoTone,
+            //           ),
+            //           Text(icon.name),
+            //         ],
+            //       );
+            //     },
+            //   ),
+            // ),
             SizedBox(
               width: 200,
               child: Card(
