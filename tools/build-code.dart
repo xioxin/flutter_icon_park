@@ -47,16 +47,16 @@ void main() {
       final color = match.group(2)?.toLowerCase();
       int? index;
       if (color == 'black' || color == '#000' || color == '#000000') {
-        index = 0;
-      } else if (color == '#2f88ff') {
         index = 1;
-      } else if (color == 'white' || color == '#fff' || color == '#ffffff') {
+      } else if (color == '#2f88ff') {
         index = 2;
-      } else if (color == '#43ccf8') {
+      } else if (color == 'white' || color == '#fff' || color == '#ffffff') {
         index = 3;
+      } else if (color == '#43ccf8') {
+        index = 4;
       }
       if (index != null) {
-        return '$type="\${props.colors.elementAtOrNull($index) ?? "$color"}"';
+        return '$type="\${props.c$index ?? "$color"}"';
       }
       return match.group(0) ?? '';
     });
@@ -65,6 +65,7 @@ void main() {
 
     return '''
 /// ${v['name']} ${v['title']}
+///
 /// category: ${v['category']} ${v['categoryCN']}
 /// author: ${v['author']}
 /// tag: ${v['tag'].join(', ')}
@@ -74,16 +75,11 @@ static IconParkData $name = IconParkData("$name", ${v['rtl']?.toString() ?? 'fal
   });
 
   final code = '''
-import './icon_park_base.dart';
+import './base.dart';
 
 class IconPark {
 ${codes.join('\n')}
 }
-
-final List<IconParkData> allIcons = [${nameSet.map((name) {
-    return "IconPark.$name";
-  }).join(', ')}];
-
 ''';
 
   final codeFile = File('./lib/icons.dart');
@@ -91,6 +87,20 @@ final List<IconParkData> allIcons = [${nameSet.map((name) {
     codeFile.deleteSync();
   }
   codeFile.writeAsStringSync(code);
+
+  final allIcon = '''
+import './base.dart';
+import './icons.dart';
+final List<IconParkData> allIcons = [${nameSet.map((name) {
+  return "IconPark.$name";
+}).join(', ')}];
+  ''';
+
+  final allIconListFile = File('./lib/all_icons.dart');
+  if (allIconListFile.existsSync()) {
+    allIconListFile.deleteSync();
+  }
+  allIconListFile.writeAsStringSync(allIcon);
 }
 
 // 减号分割转小驼峰

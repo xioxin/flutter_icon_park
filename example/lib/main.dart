@@ -1,6 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:icon_park/icon_park.dart';
-import 'package:icon_park/icon_park_base.dart';
+import 'package:icon_park/all_icons.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,7 +24,7 @@ class _MyAppState extends State<MyApp> {
   double strokeWidth = 4.0;
   StrokeJoin strokeLineJoin = StrokeJoin.round;
   StrokeCap strokeLineCap = StrokeCap.round;
-  IconParkTheme iconParkTheme = IconParkTheme.multiColor;
+  IconParkThemeType iconParkTheme = IconParkThemeType.multiColor;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +38,7 @@ class _MyAppState extends State<MyApp> {
               onPressed: () {
                 scaffoldKey.currentState?.openEndDrawer();
               },
-              icon: IconPark.setting.multiColor(context),
+              icon: IconPark.setting.icon(context),
             ),
           ],
         ),
@@ -56,17 +57,7 @@ class _MyAppState extends State<MyApp> {
                   return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      icon.icon(
-                        IconParkProps.formMaterialTheme(
-                          context,
-                          theme: IconParkTheme.twoTone,
-                        ),
-                        // context,
-                        // size: 40,
-                        // strokeWidth: strokeWidth,
-                        // strokeLineCap: strokeLineCap,
-                        // strokeLineJoin: strokeLineJoin,
-                      ),
+                      icon.icon(context, theme: IconParkThemeType.multiColor),
                       Text(icon.name),
                     ],
                   );
@@ -79,6 +70,11 @@ class _MyAppState extends State<MyApp> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    IconTheme(
+                      data: IconThemeData(size: 50, fill: 1.0, weight: 800),
+                      child: Icon(Icons.bookmark_outline),
+                    ),
+
                     Text("strokeWidth: $strokeWidth"),
                     Slider(
                       value: strokeWidth,
