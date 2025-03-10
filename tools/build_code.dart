@@ -1,5 +1,5 @@
-import 'dart:convert';
 import 'dart:io';
+import 'dart:convert';
 
 void main() {
   // ./IconPark/source/icons.json
@@ -8,7 +8,6 @@ void main() {
   final iconsJson = iconsJsonFile.readAsStringSync();
   var icons = JsonDecoder().convert(iconsJson);
   if (icons is! List) {
-    print('icons.json is not a array');
     return;
   }
 
@@ -24,13 +23,11 @@ void main() {
     }
 
     if (nameSet.contains(name)) {
-      print('nameSet.contains(name) $name');
       return '';
     }
     nameSet.add(name);
 
     String svg = v['svg'];
-    // 正则替换参数
 
     svg = svg.replaceAllMapped(RegExp(r'stroke-linejoin="(\w+)"'), (match) {
       return 'stroke-linejoin="\${props.strokeLineJoin?.name ?? "${match.group(1)}"}"';
@@ -55,7 +52,8 @@ void main() {
         index = 4;
       }
       if (index != null) {
-        return '$type="\${props.c$index ?? "$color"}"';
+        // return '$type="\${props.c$index ?? "$color"}"';
+        return '$type="\${props.c$index}"';
       }
       return match.group(0) ?? '';
     });

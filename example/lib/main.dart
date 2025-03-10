@@ -26,18 +26,25 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.fromSeed(seedColor: Colors.blue);
     return MaterialApp(
+      theme: ThemeData(
+        colorScheme: colorScheme,
+        extensions: {
+          IconParkTheme.fromColorScheme(
+            colorScheme,
+            defaultTheme: IconParkThemeType.outline,
+            strokeWidth: 5.0,
+          ),
+        },
+      ),
+
       home: Scaffold(
         key: scaffoldKey,
         appBar: AppBar(
           title: const Text('example app'),
           actions: [
-            // IconButton(
-            //   onPressed: () {
-            //     scaffoldKey.currentState?.openEndDrawer();
-            //   },
-            //   icon: IconPark.setting.icon(),
-            // ),
+
           ],
         ),
         endDrawer: Drawer(child: Text("test")),
@@ -54,12 +61,7 @@ class _MyAppState extends State<MyApp> {
                   ),
                   FilledButton.icon(
                     onPressed: () {},
-                    icon: IconPark.bookmark.icon(),
-                    label: Text("test"),
-                  ),
-                  FilledButton.icon(
-                    onPressed: null,
-                    icon: Icon(Icons.bookmark),
+                    icon: IconPark.bookmark.twoTone(),
                     label: Text("test"),
                   ),
                 ],

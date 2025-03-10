@@ -1,7 +1,9 @@
 name: flutter_icon_park
-description: "A new Flutter plugin project."
+description: "This is the Flutter implementation of the ByteDance IconPark icon library, a set of SVG-based icons. It supports multiple color modes."
 version: 0.0.1
-homepage:
+homepage: https://github.com/xioxin/flutter_icon_park
+repository: https://github.com/xioxin/flutter_icon_park
+issue_tracker: https://github.com/xioxin/flutter_icon_park/issues
 
 environment:
   sdk: ^3.7.0
@@ -17,4 +19,6 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^5.0.0
 
-flutter:
+topics:
+  - icons
+  - svg

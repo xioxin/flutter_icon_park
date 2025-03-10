@@ -1,38 +1,39 @@
 # flutter_icon_park
 
-This is the Flutter implementation of the ByteDance IconPark icon library, a set of SVG-based icons. It supports multiple color modes.
-You can customize the color, style, line width, endpoint type, and corner type.
-With tree-shaking optimization, only the icons used will be included.
+这是 ByteDance IconPark图标库的 Flutter 实现，这是一套基于SVG的图标。支持多种色彩模式。
+可以自定义颜色、风格、线宽、端点类型、拐点类型。
+利用摇树优化，只会引入使用到的图标。
 
-## Installation
+## 安装
 
 ```yaml
 dependencies:
   flutter_icon_park: ^0.0.1
 ```
 
-## Usage
+## 使用
 
 ```dart
 
-IconPark.bookmark.icon() // Automatically uses theme color and default style
+IconPark.bookmark.icon() // 自动使用主题色和默认风格
 
-// Specify style
+// 指定风格
 IconPark.bookmark.outline()
 IconPark.bookmark.fill()
 IconPark.bookmark.twoTone()
 IconPark.bookmark.multiColor()
 
 
-// Specify color
+// 指定颜色
 IconPark.bookmark.outline(fill: Colors.red)
 
-// Specify line width
+// 指定线宽
 IconPark.bookmark.outline(strokeWidth: 2)
 
 ```
 
-## Setting Theme (Optional)
+
+## 设置主题 (可选)
 
 ```dart
 Widget build(BuildContext context) {
@@ -41,12 +42,12 @@ Widget build(BuildContext context) {
     theme: ThemeData(
         colorScheme: colorScheme,
         extensions: {
-          // Choose one
-          // Automatically generate using color scheme
-          // defaultTheme specifies the default style
+          // 二选一
+          // 使用颜色方案自动生成
+          // defaultTheme 指定默认风格
           IconParkTheme.fromColorScheme(colorScheme, defaultTheme: IconParkThemeType.twoTone, strokeWidth: 5.0),
           
-          // Manually specify the style for each theme
+          // 手动指定每一个风格的样式
           IconParkTheme(
               {
                 IconParkThemeType.outline: IconParkProps.outline(Colors.black, strokeWidth: 5.0),

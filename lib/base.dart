@@ -9,9 +9,12 @@ typedef IconParkSvgBuilder = String Function(IconParkProps props);
 
 typedef IconParkThemeTypeMap = Map<IconParkThemeType, IconParkProps>;
 
-String? colorToCssRgba(Color? color) {
+String? colorToSvgColor(Color? color) {
   if (color == null) return null;
-  return 'rgba(${(color.r * 255).toStringAsFixed(0)}, ${(color.g * 255).toStringAsFixed(0)}, ${(color.b * 255).toStringAsFixed(0)}, ${color.a.toStringAsFixed(4)})';
+  if (color.a == 0) return "transparent";
+  int rgb32 = color.toARGB32() & 0x00FFFFFF;
+  String hex = rgb32.toRadixString(16).padLeft(6, '0');
+  return '#$hex';
 }
 
 class IconParkProps {
@@ -36,13 +39,13 @@ class IconParkProps {
     this.theme = IconParkThemeType.outline,
   });
 
-  String get c1 => colorToCssRgba(color1)!;
+  String get c1 => colorToSvgColor(color1)!;
 
-  String get c2 => colorToCssRgba(color2)!;
+  String get c2 => colorToSvgColor(color2)!;
 
-  String get c3 => colorToCssRgba(color3)!;
+  String get c3 => colorToSvgColor(color3)!;
 
-  String get c4 => colorToCssRgba(color4)!;
+  String get c4 => colorToSvgColor(color4)!;
 
   static IconParkProps outline(
     Color fill, {
@@ -465,16 +468,24 @@ class IconParkData {
           strokeLineJoin: strokeLineJoin,
           strokeLineCap: strokeLineCap,
         );
-
+        double opacity = iconTheme.opacity ?? 1.0;
+        opacity = opacity * props!.color1.a;
         Widget icon = SvgPicture.string(
           builder(props!),
           width: iconSize,
           height: iconSize,
+          colorFilter:
+              opacity < 1.0
+                  ? ColorFilter.mode(
+                    Colors.black.withValues(alpha: opacity),
+                    BlendMode.dstIn,
+                  )
+                  : null,
           matchTextDirection: matchTextDirection,
         );
-        if (iconTheme.opacity != null) {
-          icon = Opacity(opacity: iconTheme.opacity!, child: icon);
-        }
+        // if (opacity < 1.0) {
+        //   icon = Opacity(opacity: opacity, child: icon);
+        // }
         if (semanticLabel != null) {
           icon = Semantics(
             label: semanticLabel,
@@ -486,8 +497,7 @@ class IconParkData {
     );
   }
 
-  Widget outline(
-    BuildContext context, {
+  Widget outline({
     Color? fill,
     Color? background,
     double? strokeWidth,
@@ -506,8 +516,7 @@ class IconParkData {
     );
   }
 
-  Widget filled(
-    BuildContext context, {
+  Widget filled({
     Color? fill,
     Color? innerStroke,
     double? strokeWidth,
@@ -526,8 +535,7 @@ class IconParkData {
     );
   }
 
-  Widget twoTone(
-    BuildContext context, {
+  Widget twoTone({
     Color? fill,
     Color? twoTone,
     double? strokeWidth,
@@ -546,8 +554,7 @@ class IconParkData {
     );
   }
 
-  Widget multiColor(
-    BuildContext context, {
+  Widget multiColor({
     Color? outStrokeColor,
     Color? outFillColor,
     Color? innerStrokeColor,
