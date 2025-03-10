@@ -132,7 +132,7 @@ class IconParkProps {
     switch (type) {
       case IconParkThemeType.outline:
         return IconParkProps.outline(
-          colorScheme.primary,
+          colorScheme.onSurface,
           background: Colors.transparent,
           strokeWidth: strokeWidth,
           strokeLineJoin: strokeLineJoin,
@@ -140,7 +140,7 @@ class IconParkProps {
         );
       case IconParkThemeType.filled:
         return IconParkProps.filled(
-          colorScheme.primary,
+          colorScheme.onSurface,
           colorScheme.onPrimary,
           strokeWidth: strokeWidth,
           strokeLineJoin: strokeLineJoin,
@@ -148,7 +148,7 @@ class IconParkProps {
         );
       case IconParkThemeType.twoTone:
         return IconParkProps.twoTone(
-          colorScheme.primary,
+          colorScheme.onSurface,
           colorScheme.primaryFixedDim,
           strokeWidth: strokeWidth,
           strokeLineJoin: strokeLineJoin,
@@ -156,7 +156,7 @@ class IconParkProps {
         );
       case IconParkThemeType.multiColor:
         return IconParkProps.multiColor(
-          colorScheme.primary,
+          colorScheme.onSurface,
           colorScheme.primary,
           colorScheme.onPrimary,
           colorScheme.primaryFixedDim,
@@ -308,7 +308,7 @@ class IconParkTheme extends ThemeExtension<IconParkTheme> {
 }
 
 class DefaultIconParkProps extends InheritedWidget {
-  const DefaultIconParkProps({this.props, required super.child});
+  const DefaultIconParkProps({super.key, this.props, required super.child});
 
   final IconParkProps? props;
 
@@ -325,6 +325,46 @@ class IconParkData {
   final String name;
   final IconParkSvgBuilder builder;
   final bool rtl;
+
+  static IconParkSvgBuilder replace(String svg) {
+    final rawSvg = svg;
+    return (IconParkProps props) {
+      var svg = rawSvg;
+      svg = svg.replaceAllMapped(
+        RegExp(r'stroke-linejoin="(\w+)"'),
+        (match) =>
+            'stroke-linejoin="${props.strokeLineJoin?.name ?? match.group(1)}"',
+      );
+      svg = svg.replaceAllMapped(
+        RegExp(r'stroke-linecap="(\w+)"'),
+        (match) =>
+            'stroke-linecap="${props.strokeLineCap?.name ?? match.group(1)}"',
+      );
+      svg = svg.replaceAllMapped(
+        RegExp(r'stroke-width="(\d+)"'),
+        (match) => 'stroke-width="${props.strokeWidth ?? match.group(1)}"',
+      );
+      svg = svg.replaceAllMapped(RegExp(r'(fill|stroke)="([^"]+)"'), (match) {
+        final type = match.group(1);
+        final color = match.group(2)?.toLowerCase();
+        String? targetColor;
+        if (color == 'black' || color == '#000' || color == '#000000') {
+          targetColor = props.c1;
+        } else if (color == '#2f88ff') {
+          targetColor = props.c2;
+        } else if (color == 'white' || color == '#fff' || color == '#ffffff') {
+          targetColor = props.c3;
+        } else if (color == '#43ccf8') {
+          targetColor = props.c4;
+        }
+        if (targetColor != null) {
+          return '$type="$targetColor"';
+        }
+        return match.group(0) ?? '';
+      });
+      return svg;
+    };
+  }
 
   const IconParkData(this.name, this.rtl, this.builder);
 
@@ -366,15 +406,10 @@ class IconParkData {
     }
 
     final iconTheme = IconTheme.of(context);
-    if (useIconThemeColor) {
-      if (iconTheme.color != null) {
-        props = props.withCurrentColor(iconTheme.color!);
-      }
+    if (iconTheme.color != null) {
+      props = props.withCurrentColor(iconTheme.color!);
     }
-
-    if (size != null) {
-      size = iconTheme.size;
-    }
+    size ??= iconTheme.size;
 
     props = props.copyWith(
       strokeWidth: strokeWidth ?? props.strokeWidth,

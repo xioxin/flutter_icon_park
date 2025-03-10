@@ -57,7 +57,11 @@ class _MyAppState extends State<MyApp> {
                   return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      icon.icon(context, theme: IconParkThemeType.multiColor),
+                      icon.icon(
+                        context,
+                        theme: IconParkThemeType.twoTone,
+                        useIconThemeColor: false,
+                      ),
                       Text(icon.name),
                     ],
                   );

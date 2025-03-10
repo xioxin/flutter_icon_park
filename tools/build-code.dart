@@ -41,7 +41,6 @@ void main() {
     svg = svg.replaceAllMapped(RegExp(r'stroke-width="(\d+)"'), (match) {
       return 'stroke-width="\${props.strokeWidth ?? "${match.group(1)}"}"';
     });
-
     svg = svg.replaceAllMapped(RegExp(r'(fill|stroke)="([^"]+)"'), (match) {
       final type = match.group(1);
       final color = match.group(2)?.toLowerCase();
